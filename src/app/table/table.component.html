@@ -1,0 +1,16 @@
+<ag-grid-angular #agGrid 
+(cellValueChanged) = "handleChange()"
+    style="width: 900px; height: 500px;" 
+    class="ag-theme-balham"
+    [rowData]="rowData "  
+    [columnDefs]="columnDefs"
+    [modules]="modules"
+    rowSelection="multiple">
+</ag-grid-angular>
+<button (click)="getSelectedRows()">Get Selected Rows</button>
+<button (click)="addMoreColumns()">+ Column</button>
+<button (click)="addLessColumns()">- Column</button>
+<button (click)="addMoreRows()">+ Row</button>
+<button (click)="addLessRows()">- Row</button>
+<button (click)="pushData()">Push</button>
+<button (click)="getData()">Get</button>
