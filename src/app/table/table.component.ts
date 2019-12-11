@@ -9,7 +9,21 @@ import {AllCommunityModules} from '@ag-grid-community/all-modules';
 })
 export class TableComponent  {
   @ViewChild('agGrid', {static: false}) agGrid: AgGridAngular;
-  onCellDoubleClicked(e){   
+  
+  private search:string;
+  private gridApi;
+  private gridColumnApi;
+ 
+
+  onGridReady(params) {
+    console.log(params)
+    this.gridApi = params.api;
+    this.gridColumnApi = params.columnApi;
+  }
+
+  searchOnGrid(){
+    this.agGrid.api.setQuickFilter(this.search);
+
   }
    
   handleChange(e){
@@ -43,6 +57,10 @@ export class TableComponent  {
 
   constructor(private http: HttpClient) {
 
+  }
+
+  changeColor(e) {
+    this.agGrid.gridOptions.rowStyle = {background: e.target.value};
   }
 
   addMoreColumns() {

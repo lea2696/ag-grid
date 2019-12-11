@@ -17,7 +17,7 @@ import { TableComponent } from './table/table.component';
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    AgGridModule.withComponents([TableComponent])
+    AgGridModule.withComponents([])
   ],
   providers: [],
   bootstrap: [AppComponent]
