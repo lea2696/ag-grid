@@ -11,10 +11,17 @@ export class TableComponent  {
   @ViewChild('agGrid', {static: false}) agGrid: AgGridAngular;
   
   private search:string;
+  columnName = {
+    name: '',
+    type: 'other'
+  };
   private gridApi;
   private gridColumnApi;
+  addColumn:boolean = false;
  
-
+  toogle(){
+    this.addColumn = !this.addColumn
+  }
   onGridReady(params) {
     console.log(params)
     this.gridApi = params.api;
@@ -32,21 +39,54 @@ export class TableComponent  {
         let total = 0;
         for(let property in element){
             if(property!=="Total"){
-              total += Number(element[property])
+                if(property.includes("NUMBER")){
+                    total += Number(element[property]);
+                  
+                }
             }
             element["Total"] = total;
         }
     });
-    
+
     this.agGrid.gridOptions.api.setRowData(this.rowData);
   }
 
   columnDefs = [
-    {headerName: "", field: "", sortable: true, checkboxSelection: true,  headerCheckboxSelection: true},
-    {headerName: 'A', field: 'B', editable: true, sortable: true, filter: true},
-    {headerName: 'B', field: 'C', editable: true, sortable: true, filter: true},
-    {headerName: 'C', field: 'H', editable: true, sortable: true, filter: true},
-    {headerName: 'Total', field: 'Total', editable: true, sortable: true, filter: true}
+    {headerName: "",
+      field: "check",
+      rowDrag: true,
+      headerCheckboxSelection: true, 
+      checkboxSelection: true,
+      editable: true,
+      sortable: true,
+      filter: true,
+      pinned: "left",
+      width: 80
+    },
+    {headerName: "Total",
+    field: "Total",
+    sortable: true,
+    filter: true,
+    pinned: "rigth",
+    cellStyle: function (params) {
+      const value = Number(params.value)
+      if(value === 100){
+        return {
+          background: "#48F151"
+        };
+      } else if(value < 100) {
+        return {
+          color: "white",
+          background: "#F92B0F"
+        }
+      }
+      return {
+        background: "#88DEF8"
+      }
+    },
+    width: 130
+  },
+
    ];
 
 
@@ -59,24 +99,35 @@ export class TableComponent  {
 
   }
 
-  changeColor(e) {
-    this.agGrid.gridOptions.rowStyle = {background: e.target.value};
-  }
 
-  addMoreColumns() {
+  addMoreColumns(e) {
+    e.preventDefault();
+    console.log(this.columnName)
       let columnDef = this.agGrid.gridOptions.columnDefs;
-      let result = window.prompt("Introduce el nombre de la columna", "");
-      if(result===null) return false;
+  
+      if(this.columnName.name==="") return false;
      
       columnDef.push({
-        headerName: result,
-        field: result,
+        headerName: this.columnName.name,
+        field: `${this.columnName.name}${this.columnName.type === "number" ? "NUMBER" : ""}` ,
         editable: true,
-         sortable: true,
-          filter: true
+        sortable: true,
+        filter: true,
+        pinned: "left",
+        width: 100,
+        cellStyle: function (params) {
+
+        }
+    
+  
+
       });
       this.agGrid.gridOptions.api.setColumnDefs(columnDef);
- 
+      this.columnName = {
+        name: "",
+        type: "other"
+      };
+      this.addColumn = false;
 
   }
 
@@ -84,7 +135,7 @@ export class TableComponent  {
   addMoreRows() {
     let rowData = this.agGrid.gridOptions.rowData;
     this.rowData.push({
-      Total: 0
+      Total: 0,
     });
     this.agGrid.gridOptions.api.setRowData(rowData);
   }
@@ -109,27 +160,27 @@ export class TableComponent  {
       console.log(data);
   }
 
-  pushData(){
-    const selectedNodes = this.agGrid.api.getSelectedNodes();
-    const data = [];
-     selectedNodes.map( node => data.push(node.data) );
-     console.log(data);
-    let body = {
-      name: "Luis",
-      grid: data
-    }
-    this.http.post("https://recetas-node.herokuapp.com/grid", body).subscribe(
-      res=> console.log(res),
-      err => console.log(err)
-    )
-  }
-  getData(){
-    let body = {
-      name: "Luis"
-    }
-    this.http.post("https://recetas-node.herokuapp.com/grid/get", body).subscribe(
-      res=> console.log(res),
-      err => console.log(err)
-    )
-  }
+  // pushData(){
+  //   const selectedNodes = this.agGrid.api.getSelectedNodes();
+  //   const data = [];
+  //    selectedNodes.map( node => data.push(node.data) );
+  //    console.log(data);
+  //   let body = {
+  //     name: "Luis",
+  //     grid: data
+  //   }
+  //   this.http.post("https://recetas-node.herokuapp.com/grid", body).subscribe(
+  //     res=> console.log(res),
+  //     err => console.log(err)
+  //   )
+  // }
+  // getData(){
+  //   let body = {
+  //     name: "Luis"
+  //   }
+  //   this.http.post("https://recetas-node.herokuapp.com/grid/get", body).subscribe(
+  //     res=> console.log(res),
+  //     err => console.log(err)
+  //   )
+  // }
 }

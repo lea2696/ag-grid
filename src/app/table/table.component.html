@@ -2,7 +2,25 @@
 <div class="container">
     <div>
             <span class="add" (click)="addMoreRows()">Add Row +</span>
-            <span class="add" (click)="addMoreColumns()">Add Column +</span>
+
+            <div class="moreColumn" [ngClass]="{'show': addColumn, 'moreColumn': !addColumn}" >
+                    <span class="add column" (click)="toogle()">Add Column +</span>
+                <form class="form-new-column" (ngSubmit)="addMoreColumns($event)">
+                    <input type="text" [(ngModel)]="columnName.name" 
+                    placeholder="Column name" id="column-name" name="name"
+                    > 
+                    <div class="radio-group">
+
+                   
+                    <input type="radio" value="number"
+                     [(ngModel)]="columnName.type" checked id="porcen" name="column"  >
+                    <label for="porcen" value="" >%</label>
+                    <input type="radio" value="other" id="other" name="column" [(ngModel)]="columnName.type">
+                    <label for="other">Other</label>
+                 </div>
+                    <button>Add Column</button>
+                </form>
+            </div>
             <i class="fas fa-trash-alt"></i>
     </div>
     <div class="search">
@@ -23,12 +41,14 @@
     [enableRangeSelection]="true"
     [suppressMultiRangeSelection]="true"
     [enableCellTextSelection]="true"
+    [rowDragManaged]="true"
+    [animateRows]="true"
 
     (gridReady)="onGridReady($event)">
 </ag-grid-angular>
-<input type="color" value="green" (change)=changeColor($event)>
+
 <button (click)="getSelectedRows()">Get Selected Rows</button>
 <button (click)="addLessColumns()">- Column</button>
 <button (click)="addLessRows()">- Row</button>
-<button (click)="pushData()">Push</button>
-<button (click)="getData()">Get</button>
+<!-- <button (click)="pushData()">Push</button>
+<button (click)="getData()">Get</button> -->
