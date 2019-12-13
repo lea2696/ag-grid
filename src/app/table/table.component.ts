@@ -1,9 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AgGridAngular } from '@ag-grid-community/angular';
-interface Col extends ColDef{
-  value?: String
-}
 import {AllCommunityModules, ColDef, ColDefUtil} from '@ag-grid-community/all-modules';
 @Component({
   selector: 'app-table',
