@@ -1,7 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AgGridAngular } from '@ag-grid-community/angular';
-import {AllCommunityModules} from '@ag-grid-community/all-modules';
+interface Col extends ColDef{
+  value?: String
+}
+import {AllCommunityModules, ColDef, ColDefUtil} from '@ag-grid-community/all-modules';
 @Component({
   selector: 'app-table',
   templateUrl: './table.component.html',
@@ -10,6 +13,9 @@ import {AllCommunityModules} from '@ag-grid-community/all-modules';
 export class TableComponent  {
   @ViewChild('agGrid', {static: false}) agGrid: AgGridAngular;
   
+  constructor(private http: HttpClient) {
+  }
+  
   private search:string;
   columnName = {
     name: '',
@@ -17,13 +23,15 @@ export class TableComponent  {
   };
   private gridApi;
   private gridColumnApi;
-  addColumn:boolean = false;
- 
+  private addColumn:boolean = false;
+  private rowData: any = [];
+  private modules = AllCommunityModules;
+  
   toogle(){
     this.addColumn = !this.addColumn
   }
   onGridReady(params) {
-    console.log(params)
+
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
   }
@@ -35,14 +43,12 @@ export class TableComponent  {
    
   handleChange(e){
     let rowData = this.rowData;
+    let colValues = this.columnDefs.filter(col => col.value === "number").map(data=> data.field);
     rowData.forEach(element => {
-        let total = 0;
+      let total = 0;
         for(let property in element){
-            if(property!=="Total"){
-                if(property.includes("NUMBER")){
-                    total += Number(element[property]);
-                  
-                }
+            if(colValues.includes(property)){
+                    total += Number(element[property]);     
             }
             element["Total"] = total;
         }
@@ -51,7 +57,7 @@ export class TableComponent  {
     this.agGrid.gridOptions.api.setRowData(this.rowData);
   }
 
-  columnDefs = [
+  columnDefs:any =  [
     {headerName: "",
       field: "check",
       rowDrag: true,
@@ -61,13 +67,15 @@ export class TableComponent  {
       sortable: true,
       filter: true,
       pinned: "left",
-      width: 80
+      width: 80,
+      value: "string"
     },
     {headerName: "Total",
     field: "Total",
     sortable: true,
     filter: true,
     pinned: "rigth",
+    value: "total",
     cellStyle: function (params) {
       const value = Number(params.value)
       if(value === 100){
@@ -88,40 +96,30 @@ export class TableComponent  {
   },
 
    ];
-
-
-
-  rowData: any = [];
-
-  modules = AllCommunityModules;
-
-  constructor(private http: HttpClient) {
-
-  }
-
-
   addMoreColumns(e) {
     e.preventDefault();
-    console.log(this.columnName)
-      let columnDef = this.agGrid.gridOptions.columnDefs;
+      let columnDef = this.columnDefs;
   
       if(this.columnName.name==="") return false;
      
       columnDef.push({
         headerName: this.columnName.name,
-        field: `${this.columnName.name}${this.columnName.type === "number" ? "NUMBER" : ""}` ,
+        field: `${this.columnName.name}` ,
         editable: true,
         sortable: true,
         filter: true,
         pinned: "left",
         width: 100,
+        value: this.columnName.type === "number" ? "number" : "string",
+       
         cellStyle: function (params) {
-
+            if(params.colDef.value === "number"){
+              return {
+                background: "#F7E19F"
+              }
         }
-    
-  
-
-      });
+      }
+    });
       this.agGrid.gridOptions.api.setColumnDefs(columnDef);
       this.columnName = {
         name: "",
@@ -160,27 +158,4 @@ export class TableComponent  {
       console.log(data);
   }
 
-  // pushData(){
-  //   const selectedNodes = this.agGrid.api.getSelectedNodes();
-  //   const data = [];
-  //    selectedNodes.map( node => data.push(node.data) );
-  //    console.log(data);
-  //   let body = {
-  //     name: "Luis",
-  //     grid: data
-  //   }
-  //   this.http.post("https://recetas-node.herokuapp.com/grid", body).subscribe(
-  //     res=> console.log(res),
-  //     err => console.log(err)
-  //   )
-  // }
-  // getData(){
-  //   let body = {
-  //     name: "Luis"
-  //   }
-  //   this.http.post("https://recetas-node.herokuapp.com/grid/get", body).subscribe(
-  //     res=> console.log(res),
-  //     err => console.log(err)
-  //   )
-  // }
 }
