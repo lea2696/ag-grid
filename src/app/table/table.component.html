@@ -38,13 +38,16 @@
     [rowData]="rowData "  
     [columnDefs]="columnDefs"
     [modules]="modules"
-    [enableRangeSelection]="true"
-    [suppressMultiRangeSelection]="true"
-    [enableCellTextSelection]="true"
+    enableRangeSelection="true"
+    suppressMultiRangeSelection="true"
+    [getContextMenuItems]="getContextMenuItems"
+    rowSelection='multiple'
     [rowDragManaged]="true"
+    [allowContextMenuWithControlKey]="true"
     [animateRows]="true"
 
     (gridReady)="onGridReady($event)">
+
 </ag-grid-angular>
 
 <button (click)="getSelectedRows()">Get Selected Rows</button>

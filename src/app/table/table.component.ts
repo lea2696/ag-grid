@@ -1,14 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { AgGridAngular } from '@ag-grid-community/angular';
-import {AllCommunityModules, ColDef, ColDefUtil} from '@ag-grid-community/all-modules';
+import {AllModules} from '@ag-grid-enterprise/all-modules';
 @Component({
   selector: 'app-table',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss']
 })
 export class TableComponent  {
-  @ViewChild('agGrid', {static: false}) agGrid: AgGridAngular;
+  @ViewChild('agGrid', {static: false}) agGrid;
   
   constructor(private http: HttpClient) {
   }
@@ -22,7 +21,8 @@ export class TableComponent  {
   private gridColumnApi;
   private addColumn:boolean = false;
   private rowData: any = [];
-  private modules = AllCommunityModules;
+  private modules = AllModules;
+  private numberCol: Array<any> = [];
   
   toogle(){
     this.addColumn = !this.addColumn
@@ -31,20 +31,33 @@ export class TableComponent  {
 
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
+    this.agGrid.gridOptions.copyHeadersToClipboard = true;
   }
 
   searchOnGrid(){
     this.agGrid.api.setQuickFilter(this.search);
 
   }
+  getContextMenuItems(params){
+    console.log(params);
+    let  result = [
+      {
+        name: "Alerta",
+        action: () => { window.alert("Hola")},
+
+      },
+      "copy", 
+  
+    ];
+    return result;
+  }
    
   handleChange(e){
     let rowData = this.rowData;
-    let colValues = this.columnDefs.filter(col => col.value === "number").map(data=> data.field);
     rowData.forEach(element => {
       let total = 0;
         for(let property in element){
-            if(colValues.includes(property)){
+            if(this.numberCol.includes(property)){
                     total += Number(element[property]);     
             }
             element["Total"] = total;
@@ -65,14 +78,12 @@ export class TableComponent  {
       filter: true,
       pinned: "left",
       width: 80,
-      value: "string"
     },
     {headerName: "Total",
     field: "Total",
     sortable: true,
     filter: true,
     pinned: "rigth",
-    value: "total",
     cellStyle: function (params) {
       const value = Number(params.value)
       if(value === 100){
@@ -95,9 +106,13 @@ export class TableComponent  {
    ];
   addMoreColumns(e) {
     e.preventDefault();
-      let columnDef = this.columnDefs;
+    
+    let columnDef = this.agGrid.gridOptions.columnDefs;
   
       if(this.columnName.name==="") return false;
+      if(this.columnName.type === "number"){
+        this.numberCol.push(this.columnName.name);
+      }
      
       columnDef.push({
         headerName: this.columnName.name,
@@ -107,10 +122,9 @@ export class TableComponent  {
         filter: true,
         pinned: "left",
         width: 100,
-        value: this.columnName.type === "number" ? "number" : "string",
        
-        cellStyle: function (params) {
-            if(params.colDef.value === "number"){
+        cellStyle: (params) => {
+            if(this.numberCol.includes(params.colDef.field)){
               return {
                 background: "#F7E19F"
               }
